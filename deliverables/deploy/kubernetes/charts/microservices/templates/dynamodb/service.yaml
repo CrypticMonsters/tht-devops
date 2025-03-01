@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.dynamodb.name }}
+spec:
+  type: {{ .Values.dynamodb.service.type }}
+  ports:
+  - port: {{ .Values.dynamodb.service.port }}
+    targetPort: 8000
+    protocol: TCP
+    name: dynamodb
+  selector:
+    app: {{ .Values.dynamodb.name }}

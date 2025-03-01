@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.dynamodb.name }}
+  labels:
+    app: {{ .Values.dynamodb.name }}
+spec:
+  replicas: 1  
+  selector:
+    matchLabels:
+      app: {{ .Values.dynamodb.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.dynamodb.name }}
+    spec:
+      containers:
+      - name: {{ .Values.dynamodb.name }}
+        image: "{{ .Values.dynamodb.image.repository }}:{{ .Values.dynamodb.image.tag }}"
+        imagePullPolicy: {{ .Values.dynamodb.image.pullPolicy }}
+        ports:
+        - containerPort: 8000
+        args:
+          - "-jar"
+          - "DynamoDBLocal.jar"
+          - "-sharedDb"
+          - "-dbPath"
+          - "/data"
+        volumeMounts:
+          - name: dynamodb-data
+            mountPath: /data
+        resources:
+          {{- toYaml .Values.dynamodb.resources | nindent 12 }}
+      volumes:
+      - name: dynamodb-data
+        emptyDir: {}
