@@ -13,11 +13,18 @@ variable "inventory_table_arn" {
   type        = string
 }
 
-variable "order_api_repo_arn" {
-  description = "ARN of Order API repository ARN"
+variable "order_api_repository_name" {
+  description = "Name of the Order API ECR repository"
   type        = string
 }
-variable "order_processor_repo_arn" {
-  description = "ARN of Order Processor repository ARN"
+
+variable "processor_repository_name" {
+  description = "Name of the Order Processor ECR repository"
   type        = string
+}
+
+variable "tags" {
+  description = "A map of tags to add to all resources."
+  type        = map(string)
+  default     = {}
 }

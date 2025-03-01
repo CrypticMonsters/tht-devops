@@ -1,3 +1,12 @@
+# Get ECR repository information
+data "aws_ecr_repository" "order_api" {
+  name = var.order_api_repository_name
+}
+
+data "aws_ecr_repository" "processor" {
+  name = var.processor_repository_name
+}
+
 resource "aws_iam_role_policy" "ecr_pull_policy" {
   name = "${var.environment}-ecr-pull-policy"
   role = aws_iam_role.ecs_execution_role.id
@@ -23,8 +32,8 @@ resource "aws_iam_role_policy" "ecr_pull_policy" {
           "ecr:BatchCheckLayerAvailability"
         ]
         Resource = [
-          var.order_api_repo_arn,
-          var.order_processor_repo_arn
+          data.aws_ecr_repository.order_api.arn,
+          data.aws_ecr_repository.processor.arn
         ]
       }
     ]

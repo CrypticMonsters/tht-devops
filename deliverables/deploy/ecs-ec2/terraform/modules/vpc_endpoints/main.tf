@@ -8,9 +8,12 @@ resource "aws_vpc_endpoint" "ecr_api" {
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
 
-  tags = {
-    Name = "${var.environment}-ecr-api-endpoint"
-  }
+  tags = merge(
+    {
+      Name = "${var.environment}-ecr-api-endpoint"
+    },
+    var.tags
+  )
 }
 
 resource "aws_vpc_endpoint" "ecr_dkr" {
@@ -21,9 +24,12 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
 
-  tags = {
-    Name = "${var.environment}-ecr-dkr-endpoint"
-  }
+  tags = merge(
+    {
+      Name = "${var.environment}-ecr-dkr-endpoint"
+    },
+    var.tags
+  )
 }
 
 resource "aws_vpc_endpoint" "s3" {
@@ -32,9 +38,12 @@ resource "aws_vpc_endpoint" "s3" {
   vpc_endpoint_type = "Gateway"
   route_table_ids   = var.private_route_table_ids
 
-  tags = {
-    Name = "${var.environment}-s3-endpoint"
-  }
+  tags = merge(
+    {
+      Name = "${var.environment}-s3-endpoint"
+    },
+    var.tags
+  )
 }
 
 # CloudWatch Logs endpoint
@@ -46,9 +55,12 @@ resource "aws_vpc_endpoint" "logs" {
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
 
-  tags = {
-    Name = "${var.environment}-logs-endpoint"
-  }
+  tags = merge(
+    {
+      Name = "${var.environment}-logs-endpoint"
+    },
+    var.tags
+  )
 }
 
 resource "aws_security_group" "vpc_endpoints" {
@@ -70,9 +82,12 @@ resource "aws_security_group" "vpc_endpoints" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = {
-    Name = "${var.environment}-vpc-endpoints-sg"
-  }
+  tags = merge(
+    {
+      Name = "${var.environment}-vpc-endpoints-sg"
+    },
+    var.tags
+  )
 }
 
 resource "aws_vpc_endpoint" "ssm" {
@@ -82,9 +97,13 @@ resource "aws_vpc_endpoint" "ssm" {
   subnet_ids          = var.private_subnets
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
-  tags = {
-    Name = "${var.environment}-ssm-endpoint"
-  }
+
+  tags = merge(
+    {
+      Name = "${var.environment}-ssm-endpoint"
+    },
+    var.tags
+  )
 }
 
 resource "aws_vpc_endpoint" "ec2messages" {
@@ -95,9 +114,13 @@ resource "aws_vpc_endpoint" "ec2messages" {
   subnet_ids          = var.private_subnets
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
-  tags = {
-    Name = "${var.environment}-ec2messages-endpoint"
-  }
+
+  tags = merge(
+    {
+      Name = "${var.environment}-ec2messages-endpoint"
+    },
+    var.tags
+  )
 }
 
 resource "aws_vpc_endpoint" "ssmmessages" {
@@ -107,9 +130,13 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   subnet_ids          = var.private_subnets
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
-  tags = {
-    Name = "${var.environment}-ssmmessages-endpoint"
-  }
+
+  tags = merge(
+    {
+      Name = "${var.environment}-ssmmessages-endpoint"
+    },
+    var.tags
+  )
 }
 
 resource "aws_vpc_endpoint" "ecs_agent" {
@@ -121,9 +148,12 @@ resource "aws_vpc_endpoint" "ecs_agent" {
   subnet_ids         = var.private_subnets
   security_group_ids = [aws_security_group.vpc_endpoints.id]
 
-  tags = {
-    Name = "${var.environment}-ecs-agent-endpoint"
-  }
+  tags = merge(
+    {
+      Name = "${var.environment}-ecs-agent-endpoint"
+    },
+    var.tags
+  )
 }
 
 resource "aws_vpc_endpoint" "ecs_telemetry" {
@@ -135,9 +165,12 @@ resource "aws_vpc_endpoint" "ecs_telemetry" {
   subnet_ids         = var.private_subnets
   security_group_ids = [aws_security_group.vpc_endpoints.id]
 
-  tags = {
-    Name = "${var.environment}-ecs-telemetry-endpoint"
-  }
+  tags = merge(
+    {
+      Name = "${var.environment}-ecs-telemetry-endpoint"
+    },
+    var.tags
+  )
 }
 
 resource "aws_vpc_endpoint" "ecs" {
@@ -147,16 +180,24 @@ resource "aws_vpc_endpoint" "ecs" {
   subnet_ids          = var.private_subnets
   security_group_ids  = [aws_security_group.vpc_endpoints.id]
   private_dns_enabled = true
-  tags = {
-    Name = "${var.environment}-ecs-endpoint"
-  }
+
+  tags = merge(
+    {
+      Name = "${var.environment}-ecs-endpoint"
+    },
+    var.tags
+  )
 }
 resource "aws_vpc_endpoint" "dynamodb" {
   vpc_id            = var.vpc_id
   service_name      = "com.amazonaws.${data.aws_region.current.name}.dynamodb"
   vpc_endpoint_type = "Gateway"
   route_table_ids   = var.private_route_table_ids
-  tags = {
-    Name = "${var.environment}-dynamodb-endpoint"
-  }
+
+  tags = merge(
+    {
+      Name = "${var.environment}-dynamodb-endpoint"
+    },
+    var.tags
+  )
 }

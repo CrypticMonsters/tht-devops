@@ -4,9 +4,10 @@ resource "aws_vpc" "main" {
   enable_dns_support               = true
   assign_generated_ipv6_cidr_block = true
 
-  tags = {
-    Name = var.vpc_name
-  }
+  tags = merge(
+    { Name = var.vpc_name },
+    var.tags,
+  )
 }
 
 resource "aws_subnet" "private" {
@@ -17,9 +18,13 @@ resource "aws_subnet" "private" {
   ipv6_cidr_block   = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, count.index + length(var.private_subnet_cidrs))
 
   assign_ipv6_address_on_creation = true
-  tags = {
-    Name = "${var.environment}-private-subnet-${count.index + 1}"
-  }
+
+  tags = merge(
+    {
+      Name = "${var.environment}-private-subnet-${count.index + 1}"
+    },
+    var.tags,
+  )
 }
 
 resource "aws_subnet" "public" {
@@ -32,9 +37,12 @@ resource "aws_subnet" "public" {
   assign_ipv6_address_on_creation = true
   map_public_ip_on_launch         = true
 
-  tags = {
-    Name = "${var.environment}-public-subnet-${count.index + 1}"
-  }
+  tags = merge(
+    {
+      Name = "${var.environment}-public-subnet-${count.index + 1}"
+    },
+    var.tags
+  )
 }
 
 resource "aws_nat_gateway" "main" {
@@ -42,34 +50,46 @@ resource "aws_nat_gateway" "main" {
   allocation_id = aws_eip.nat[count.index].id
   subnet_id     = aws_subnet.public[count.index].id
 
-  tags = {
-    Name = "${var.environment}-nat-gw-${count.index + 1}"
-  }
+  tags = merge(
+    {
+      Name = "${var.environment}-nat-gw-${count.index + 1}"
+    },
+    var.tags
+  )
 }
 
 resource "aws_eip" "nat" {
   count  = length(var.public_subnet_cidrs)
   domain = "vpc"
 
-  tags = {
-    Name = "${var.environment}-nat-eip-${count.index + 1}"
-  }
+  tags = merge(
+    {
+      Name = "${var.environment}-nat-eip-${count.index + 1}"
+    },
+    var.tags
+  )
 }
 
 resource "aws_egress_only_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
-    Name = "${var.environment}-eigw"
-  }
+  tags = merge(
+    {
+      Name = "${var.environment}-eigw"
+    },
+    var.tags
+  )
 }
 
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
-  tags = {
-    Name = "${var.environment}-igw"
-  }
+  tags = merge(
+    {
+      Name = "${var.environment}-igw"
+    },
+    var.tags
+  )
 }
 
 resource "aws_route_table" "private" {
@@ -84,10 +104,14 @@ resource "aws_route_table" "private" {
     ipv6_cidr_block        = "::/0"
     egress_only_gateway_id = aws_egress_only_internet_gateway.main.id
   }
-  tags = {
-    Name        = "${var.environment}-private-rt-${count.index + 1}"
-    Environment = var.environment
-  }
+
+  tags = merge(
+    {
+      Name        = "${var.environment}-private-rt-${count.index + 1}"
+      Environment = var.environment
+    },
+    var.tags
+  )
 }
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
@@ -102,9 +126,13 @@ resource "aws_route_table" "public" {
     gateway_id      = aws_internet_gateway.main.id
   }
 
-  tags = {
-    Name = "${var.environment}-public-rt"
-  }
+  tags = merge(
+    {
+      Name        = "${var.environment}-public-rt",
+      Environment = var.environment
+    },
+    var.tags
+  )
 }
 
 resource "aws_route_table_association" "private" {

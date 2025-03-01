@@ -22,7 +22,11 @@ resource "aws_security_group" "ecs_tasks" {
     protocol         = "-1"
     ipv6_cidr_blocks = ["::/0"]
   }
-  tags = { Name = "${var.environment}-ecs-tasks-sg" }
+
+  tags = merge(
+    { Name = "${var.environment}-ecs-tasks-sg" },
+    var.tags
+  )
 }
 
 resource "aws_security_group" "alb" {
@@ -56,6 +60,8 @@ resource "aws_security_group" "alb" {
     ipv6_cidr_blocks = ["::/0"]
   }
 
-  tags = { Name = "${var.environment}-alb-sg" }
-
+  tags = merge(
+    { Name = "${var.environment}-alb-sg" },
+    var.tags
+  )
 }

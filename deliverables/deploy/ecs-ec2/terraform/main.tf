@@ -29,6 +29,7 @@ module "vpc" {
   private_subnet_cidrs = var.private_subnets_cidr
   public_subnet_cidrs  = var.public_subnets_cidr
 
+  tags = var.tags
 }
 
 module "iam" {
@@ -39,8 +40,12 @@ module "iam" {
   orders_table_arn    = module.dynamodb.orders_table_arn
   inventory_table_arn = module.dynamodb.inventory_table_arn
 
-  order_api_repo_arn       = var.order_api_repo_arn
-  order_processor_repo_arn = var.order_processor_repo_arn
+  order_api_repository_name = var.order_api_image
+  processor_repository_name = var.processor_image
+
+  tags = var.tags
+
+  depends_on = [module.dynamodb]
 }
 
 module "ecs" {
@@ -54,19 +59,21 @@ module "ecs" {
   alb_security_group_id = module.security.alb_security_group_id
   ecs_security_group_id = module.security.ecs_task_security_group_id
 
-  order_api_image = var.order_api_image
-  processor_image = var.processor_image
-
   ecs_execution_role_arn = module.iam.ecs_execution_role_arn
   ecs_task_role_arn      = module.iam.ecs_task_role_arn
 
+  order_api_repository_name = var.order_api_image
+  processor_repository_name = var.processor_image
 
   inventory_table_name = module.dynamodb.inventory_table_name
   orders_table_name    = module.dynamodb.orders_table_name
 
-  depends_on = [module.vpc]
+  depends_on = [
+    module.vpc,
+    module.dynamodb,
+    module.iam
+  ]
 }
-
 
 module "vpc_endpoints" {
   source = "./modules/vpc_endpoints"
@@ -75,14 +82,17 @@ module "vpc_endpoints" {
   private_subnets         = module.vpc.private_subnets
   private_route_table_ids = module.vpc.private_route_table_ids
   ecs_security_group_id   = module.security.ecs_task_security_group_id
+
+  tags = var.tags
 }
 
 module "dynamodb" {
   source = "./modules/dynamodb"
 
   environment = var.environment
-}
 
+  tags = var.tags
+}
 
 module "security" {
   source = "./modules/security"
@@ -90,6 +100,8 @@ module "security" {
   environment = var.environment
 
   vpc_id = module.vpc.vpc_id
+
+  tags = var.tags
 
   depends_on = [module.vpc]
 }
