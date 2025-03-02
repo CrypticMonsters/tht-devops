@@ -5,7 +5,7 @@ output "vpc_id" {
 
 output "alb_dns_name" {
   description = "DNS name of the load balancer"
-  value       = module.ecs[0].alb_dns_name
+  value       = module.ecs.alb_dns_name
 }
 
 output "dynamodb_orders_table" {

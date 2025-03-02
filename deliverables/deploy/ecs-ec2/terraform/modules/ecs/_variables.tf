@@ -25,13 +25,13 @@ variable "ecs_security_group_id" {
   type        = string
 }
 
-variable "order_api_image" {
-  description = "Docker image for Order API"
+variable "order_api_repository_name" {
+  description = "ECR repository name for Order API"
   type        = string
 }
 
-variable "processor_image" {
-  description = "Docker image for Order Processor"
+variable "processor_repository_name" {
+  description = "ECR repository name for Order Processor"
   type        = string
 }
 
@@ -64,6 +64,7 @@ variable "inventory_table_name" {
   description = "Name of the DynamoDB inventory table"
   type        = string
 }
+
 variable "instance_type" {
   description = "Instance type"
   type        = string

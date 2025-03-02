@@ -3,7 +3,7 @@ resource "aws_autoscaling_group" "ecs" {
   vpc_zone_identifier = var.private_subnets
   min_size            = 1
   max_size            = 4
-  desired_capacity    = 1
+  desired_capacity    = 4
 
   protect_from_scale_in = true
   launch_template {
