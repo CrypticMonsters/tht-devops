@@ -10,9 +10,28 @@ from typing import Any, Dict, Optional
 import boto3
 import dns.resolver
 import httpx
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel
+from prometheus_client import Counter, Histogram, generate_latest, CONTENT_TYPE_LATEST
 
+# Define Prometheus metrics
+REQUESTS_TOTAL = Counter(
+    'http_requests_total',
+    'Total number of HTTP requests',
+    ['method', 'endpoint', 'status']
+)
+
+REQUEST_DURATION = Histogram(
+    'http_request_duration_seconds',
+    'HTTP request duration in seconds',
+    ['method', 'endpoint']
+)
+
+ORDER_CREATION_TOTAL = Counter(
+    'order_creation_total',
+    'Total number of orders created',
+    ['status']
+)
 
 def resolve_srv(endpoint):
     srvInfo = {}
@@ -111,21 +130,25 @@ async def create_order(order: Order, request: Request):
 
                 repository = OrderRepository()
                 stored_order = await repository.create_order(order_data)
+                ORDER_CREATION_TOTAL.labels(status="success").inc()
                 return OrderResponse(**stored_order)
             else:
                 logger.error(
                     f"Order Processor returned error: {response.text}",
                 )
+                ORDER_CREATION_TOTAL.labels(status="processor_error").inc()
                 raise HTTPException(
                     status_code=response.status_code, detail=response.text
                 )
 
     except httpx.TimeoutException:
+        ORDER_CREATION_TOTAL.labels(status="timeout").inc()
         raise HTTPException(status_code=504, detail="Order Processor timeout")
     except Exception as e:
         logger.error(
             f"Order processing failed: {str(e)}",
         )
+        ORDER_CREATION_TOTAL.labels(status="error").inc()
         raise HTTPException(status_code=500, detail="Order processing failed")
 
 
@@ -161,6 +184,32 @@ async def health_check():
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
         raise HTTPException(status_code=503, detail=f"Service unhealthy: {str(e)}")
+
+
+@app.middleware("http")
+async def metrics_middleware(request: Request, call_next):
+    method = request.method
+    path = request.url.path
+    
+    # Record request duration
+    with REQUEST_DURATION.labels(
+        method=method,
+        endpoint=path,
+    ).time():
+        response = await call_next(request)
+        
+    # Update request count
+    REQUESTS_TOTAL.labels(
+        method=method,
+        endpoint=path,
+        status=response.status_code
+    ).inc()
+    
+    return response
+
+@app.get("/metrics")
+async def metrics():
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 if __name__ == "__main__":

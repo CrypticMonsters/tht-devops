@@ -5,3 +5,4 @@ boto3==1.36.14
 pydantic==2.10.6
 dnspython==2.7.0
 python-json-logger==3.2.1
+prometheus-client==0.21.1

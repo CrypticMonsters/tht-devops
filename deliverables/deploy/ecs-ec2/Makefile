@@ -20,3 +20,7 @@ tf-cluster-plan:
 .PHONY: tf-cluster-graph
 tf-cluster-graph:
 	@@cd $(THIS_DIR)/terraform && terraform graph -type=plan
+
+.PHONY: tf-cluster-get-url
+tf-cluster-get-url:
+	@@cd $(THIS_DIR)/terraform && terraform output alb_dns_name

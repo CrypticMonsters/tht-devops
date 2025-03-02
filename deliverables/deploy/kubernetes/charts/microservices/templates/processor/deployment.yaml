@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "tht-devops.fullname" . }}-processor
+  labels:
+    {{- include "tht-devops.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.processor.replicaCount }}
+  selector:
+    matchLabels:
+      role: processor
+      {{- include "tht-devops.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/shared-config: {{ include (print $.Template.BasePath "/shared-config.yaml") . | sha256sum }}
+        {{- with .Values.processor.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        role: processor
+        {{- include "tht-devops.labels" . | nindent 8 }}
+        {{- with .Values.processor.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.processor.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-processor
+          securityContext:
+            {{- toYaml .Values.processor.securityContext | nindent 12 }}
+          image: "{{ .Values.processor.image.repository }}:{{ .Values.processor.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.processor.image.pullPolicy }}
+          envFrom:
+            - configMapRef:
+                name: {{ .Release.Name }}-shared-config
+          {{- if .Values.processor.extraEnv }}
+          env:
+            {{- toYaml .Values.processor.extraEnv | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.processor.service.port }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.processor.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.processor.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.processor.resources | nindent 12 }}

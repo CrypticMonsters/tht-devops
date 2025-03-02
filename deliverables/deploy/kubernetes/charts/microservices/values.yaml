@@ -1,3 +1,158 @@
+# Global values
+###############
+global:
+  imageRegistry: ""
+  imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+config:
+  aws:
+    access_key_id: local
+    secret_access_key: local
+    defaultRegion: "us-west-2"
+  dynamodb:
+    endpoint: "http://dynamodb-local:8000"
+    table: "orders"
+
+# Order API Values
+#################
+api:
+  replicaCount: 1
+
+  podLabels: {}
+  podAnnotations: {}
+
+  image:
+    repository: "order-api"
+    pullPolicy: Never
+    tag: "latest"
+
+  extraEnv: []
+
+  service:
+    type: ClusterIP
+    port: 8000
+
+  metrics:
+    enabled: true
+
+  ingress:
+    enabled: false
+    className: ""
+    annotations: {}
+    hosts:
+      - host: chart-example.local
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+    tls: []
+
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    successThreshold: 1
+    failureThreshold: 3
+
+  resources: {}
+    # requests:
+      # memory: "512Mi"
+      # cpu: "200m"
+    # limits:
+      # memory: "1Gi"
+      # cpu: "500m"
+
+
+# Order Processor Values
+#######################
+processor:
+  replicaCount: 1
+
+  podLabels: {}
+  podAnnotations: {}
+
+  image:
+    repository: "order-processor"
+    pullPolicy: Never
+    tag: "latest"
+
+  extraEnv: []
+
+  service:
+    type: ClusterIP
+    port: 8000
+
+  metrics:
+    enabled: true
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 10
+    periodSeconds: 30
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 3
+    successThreshold: 1
+    failureThreshold: 3
+
+  resources: {}
+    # requests:
+      # memory: "512Mi"
+      # cpu: "200m"
+    # limits:
+      # memory: "1Gi"
+      # cpu: "500m"
+
+# DynamoDB Values
+#################
 dynamodb:
   name: dynamodb-local
   image:

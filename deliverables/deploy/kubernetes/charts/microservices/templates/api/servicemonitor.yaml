@@ -1,0 +1,21 @@
+{{- if and .Values.api.metrics.enabled (.Capabilities.APIVersions.Has "monitoring.coreos.com/v1") }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: order-api
+  labels:
+    release: kube-prometheus-stack
+    {{- include "tht-devops.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      role: api
+      {{- include "tht-devops.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 30s
+  namespaceSelector:
+    matchNames:
+      - {{ .Release.Namespace }}
+{{- end }}

@@ -5,7 +5,7 @@ metadata:
   labels:
     app: {{ .Values.dynamodb.name }}
 spec:
-  replicas: 1  
+  replicas: 1
   selector:
     matchLabels:
       app: {{ .Values.dynamodb.name }}
