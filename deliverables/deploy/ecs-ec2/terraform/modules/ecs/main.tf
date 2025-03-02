@@ -38,7 +38,7 @@ resource "aws_ecs_task_definition" "processor" {
       portMappings = [
         {
           containerPort = 8000
-          hostPort      = 0 # Dynamic port mapping
+          hostPort      = 8000
           protocol      = "tcp"
         }
       ]
@@ -81,10 +81,15 @@ resource "aws_ecs_service" "processor" {
     weight            = 100
   }
 
-
   deployment_circuit_breaker {
     enable   = true
     rollback = true
+  }
+
+  service_registries {
+    registry_arn   = aws_service_discovery_service.processor.arn
+    container_name = "processor"
+    container_port = 8000
   }
 }
 
@@ -132,8 +137,8 @@ resource "aws_ecs_task_definition" "order_api" {
           value = var.orders_table_name
         },
         {
-          name  = "ORDER_PROCESSOR_URL"
-          value = "http://${aws_service_discovery_service.processor.name}.${aws_service_discovery_private_dns_namespace.main.name}:8000"
+          name  = "SRV_ENDPOINT"
+          value = "${aws_service_discovery_service.processor.name}.${aws_service_discovery_private_dns_namespace.main.name}"
         }
       ]
 

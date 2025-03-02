@@ -12,7 +12,7 @@ resource "aws_service_discovery_service" "processor" {
 
     dns_records {
       ttl  = 10
-      type = "A"
+      type = "SRV"
     }
   }
 
