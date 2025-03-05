@@ -50,6 +50,8 @@
 - Testability of both terraform and helm deployments. Currently the testing is done manually _after_ everything is deployed. While I wouldn't combine these tests into the deployments themselves (there could be other separate e2e tests running that validate systems, aligning more with SLO/SLI methodologies), we could use CI actions to run these tests as part of the acceptance criteria to merge changes in, increasing confidence that no issues would be introduced before deploying changes.
 - I was able to add dynamodb bootstrapping into the terraform module, but left it out of the kubernetes chart for the sake of simplicity and script duplication, but this could've been added in, or again, just be made part of some testing workflows.
 - Python dependency and venv management can be painful, we could introduce something like poetry to improve devex and consistency
+- Add mTLS between both services to ensure secure communication even within private networks
+- Enable encryption at rest on dynamodb tables
 
 # What I would do if this was in a production environment and I had more time
 
@@ -71,3 +73,4 @@
 - Configure alert expressions via prometheus rules, ensuring we can cover expected operational issues, as well as others informed by known performance thresholds
 - Ensure we have runbooks for expected incidents, as well as a framework to handle any and all incidents
 - Improve healthchecks across the board to not introduce unecessary restarts, particularly in kubernetes
+- Ensure all public endpoints with are exposed with SSL
