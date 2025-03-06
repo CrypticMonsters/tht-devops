@@ -43,6 +43,7 @@
 - Since this is stored in a git repo, there are numerous CI workflows that could be configured for this. None are included in this submission.
 - The Makefile helps a lot but it can be cumbersome when working with a complex codebase with various ecosystems (docker, terraform, k8s, etc). Reconsidering this approach could lead to better devex.
 - Automated deployment is also missing. Depending on what systems would be in place to deploy, we could introduce direct deployments from a CI/CD pipeline, or use gitops frameworks for this.
+- No SSL enabled on ALB
 
 # What could be improved
 
@@ -52,6 +53,7 @@
 - Python dependency and venv management can be painful, we could introduce something like poetry to improve devex and consistency
 - Add mTLS between both services to ensure secure communication even within private networks
 - Enable encryption at rest on dynamodb tables
+- Improve support for custom domains at the public endpoint level
 
 # What I would do if this was in a production environment and I had more time
 
@@ -74,3 +76,5 @@
 - Ensure we have runbooks for expected incidents, as well as a framework to handle any and all incidents
 - Improve healthchecks across the board to not introduce unecessary restarts, particularly in kubernetes
 - Ensure all public endpoints with are exposed with SSL
+- Ensure we use an ingress controller to expose public endpoints
+- Setup DNS automation such that records are automatically created for services and ingress resources if need be
